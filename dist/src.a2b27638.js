@@ -40468,6 +40468,33 @@ function createAreaLightMaterial(intensity) {
   material.color.setScalar(intensity);
   return material;
 }
+},{"three":"node_modules/three/build/three.module.js"}],"src/helpers.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.fitCameraToCenteredObject = void 0;
+
+var _three = require("three");
+
+// https://wejn.org/2020/12/cracking-the-threejs-object-fitting-nut/
+var fitCameraToCenteredObject = function fitCameraToCenteredObject(camera, scene, offset, controls) {
+  var box = new _three.Box3().setFromObject(scene);
+  var size = box.getSize(new _three.Vector3()).length();
+  var center = box.getCenter(new _three.Vector3());
+  camera.updateProjectionMatrix(); // set camera position
+
+  camera.position.copy(center);
+  camera.position.z += size;
+  camera.lookAt(center); // prevent zoom out!
+
+  controls.maxDistance = size / (2 * Math.tan(camera.fov * Math.PI / 360)); // max zoom of * 2
+
+  controls.minDistance = controls.maxDistance / 2;
+};
+
+exports.fitCameraToCenteredObject = fitCameraToCenteredObject;
 },{"three":"node_modules/three/build/three.module.js"}],"src/Viewer.js":[function(require,module,exports) {
 "use strict";
 
@@ -40483,6 +40510,8 @@ var _GLTFLoader = require("three/examples/jsm/loaders/GLTFLoader.js");
 var _OrbitControls = require("three/examples/jsm/controls/OrbitControls.js");
 
 var _RoomEnvironment = require("three/examples/jsm/environments/RoomEnvironment.js");
+
+var _helpers = require("./helpers");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -40502,6 +40531,7 @@ var Viewer = /*#__PURE__*/function () {
     this.scene = new _three.Scene(); // These are just default, we're going to override these values after loading the model itself
 
     this.camera = new _three.PerspectiveCamera(60, clientWidth / clientHeight, 0.01, 1000);
+    this.camera.castShadow = true;
     this.scene.add(this.camera);
     this.renderer = new _three.WebGLRenderer({
       antialias: true,
@@ -40559,18 +40589,19 @@ var Viewer = /*#__PURE__*/function () {
 
       this.initLights(); // add scene
 
-      this.scene.add(scene); //render
+      this.scene.add(scene); //resize and render
 
-      this.render();
+      this.resize();
     }
   }, {
     key: "initLights",
     value: function initLights() {
-      var hemiLight = new _three.HemisphereLight(0xffeeb1, 0x080820, 7);
+      var hemiLight = new _three.HemisphereLight(0xffeeb1, 0x080820, 1);
       this.scene.add(hemiLight);
-      var ambientLight = new _three.AmbientLight(0xffffff, 3);
+      var ambientLight = new _three.AmbientLight(0xffffff, 1);
       this.camera.add(ambientLight);
       var directionalLight = new _three.DirectionalLight(0xffffff, 3);
+      directionalLight.castShadow = true;
       directionalLight.position.set(0.5, 0, 0.866);
       this.camera.add(directionalLight);
     }
@@ -40580,10 +40611,10 @@ var Viewer = /*#__PURE__*/function () {
       var _this$domElement$pare2 = this.domElement.parentElement,
           clientHeight = _this$domElement$pare2.clientHeight,
           clientWidth = _this$domElement$pare2.clientWidth;
-      this.renderer.setSize(clientWidth, clientHeight);
-      this.camera.aspect = clientWidth / clientHeight;
+      this.camera.aspect = clientWidth / clientHeight; //fitCameraToCenteredObject(this.camera, this.content, 1.3, this.controls);
+
       this.camera.updateProjectionMatrix();
-      this.render();
+      this.renderer.setSize(clientWidth, clientHeight);
     }
   }, {
     key: "traverseMaterials",
@@ -40626,7 +40657,7 @@ var Viewer = /*#__PURE__*/function () {
 }();
 
 exports.Viewer = Viewer;
-},{"three":"node_modules/three/build/three.module.js","three/examples/jsm/loaders/GLTFLoader.js":"node_modules/three/examples/jsm/loaders/GLTFLoader.js","three/examples/jsm/controls/OrbitControls.js":"node_modules/three/examples/jsm/controls/OrbitControls.js","three/examples/jsm/environments/RoomEnvironment.js":"node_modules/three/examples/jsm/environments/RoomEnvironment.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"three":"node_modules/three/build/three.module.js","three/examples/jsm/loaders/GLTFLoader.js":"node_modules/three/examples/jsm/loaders/GLTFLoader.js","three/examples/jsm/controls/OrbitControls.js":"node_modules/three/examples/jsm/controls/OrbitControls.js","three/examples/jsm/environments/RoomEnvironment.js":"node_modules/three/examples/jsm/environments/RoomEnvironment.js","./helpers":"src/helpers.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
