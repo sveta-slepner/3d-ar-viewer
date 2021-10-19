@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parcel Sandbox</title>
+    <meta charset="UTF-8" />
+    <script>
+        function appHeight() {
+            const doc = document.documentElement;
+            doc.style.setProperty('--vh', (window.innerHeight * .01) + 'px');
+        }
+        window.addEventListener('resize', appHeight);
+    </script>
+</head>
+
+<body>
+<div id="app">
+    <div id="viewer"></div>
+</div>
+
+<script src="src/index.js"></script>
+</body>
+</html>
