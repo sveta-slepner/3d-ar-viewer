@@ -12,14 +12,15 @@ import {
     ACESFilmicToneMapping,
 } from 'three';
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
+import {fitCameraToCenteredObject} from "./helpers";
 
 export class Viewer {
     constructor(domElement) {
         this.domElement = domElement;
-        const { clientHeight, clientWidth } = this.domElement.parentElement;
+        const {clientHeight, clientWidth} = this.domElement.parentElement;
 
         this.content = null;
         this.scene = new Scene();
@@ -32,9 +33,11 @@ export class Viewer {
             1000
         );
 
+        this.camera.castShadow = true;
+
         this.scene.add(this.camera);
 
-        this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer = new WebGLRenderer({antialias: true, alpha: true});
         this.renderer.physicallyCorrectLights = true;
         this.renderer.outputEncoding = sRGBEncoding;
         this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -44,7 +47,7 @@ export class Viewer {
         this.renderer.setSize(clientWidth, clientHeight);
 
         this.pmremGenerator = new PMREMGenerator(this.renderer);
-        this.pmremGenerator.fromScene( new RoomEnvironment(), 0.04 ).texture;
+        this.pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
         this.pmremGenerator.compileEquirectangularShader();
 
         this.controls = new OrbitControls(
@@ -67,8 +70,8 @@ export class Viewer {
         this.render();
     }
 
-    render () {
-        this.renderer.render( this.scene, this.camera );
+    render() {
+        this.renderer.render(this.scene, this.camera);
     }
 
     setContent(scene, clips) {
@@ -101,38 +104,41 @@ export class Viewer {
         // add scene
         this.scene.add(scene);
 
-        //render
-        this.render();
+        //resize and render
+        this.resize();
     }
 
     initLights() {
-        const hemiLight = new HemisphereLight(0xffeeb1, 0x080820, 7);
+        const hemiLight = new HemisphereLight(0xffeeb1, 0x080820, 1);
         this.scene.add(hemiLight);
 
-        const ambientLight  = new AmbientLight(0xffffff, 3);
-        this.camera.add( ambientLight );
+        const ambientLight = new AmbientLight(0xffffff, 1);
+        this.camera.add(ambientLight);
 
-        const directionalLight  = new DirectionalLight(0xffffff, 3);
+        const directionalLight = new DirectionalLight(0xffffff, 3);
+        directionalLight.castShadow = true;
         directionalLight.position.set(0.5, 0, 0.866);
-        this.camera.add( directionalLight );
+        this.camera.add(directionalLight);
     }
 
     resize() {
-        const { clientHeight, clientWidth } = this.domElement.parentElement;
-        this.renderer.setSize(clientWidth, clientHeight);
+        const {clientHeight, clientWidth} = this.domElement.parentElement;
         this.camera.aspect = clientWidth / clientHeight;
-
+        //fitCameraToCenteredObject(this.camera, this.content, 1.3, this.controls);
         this.camera.updateProjectionMatrix();
-        this.render();
+
+        this.renderer.setSize(clientWidth, clientHeight);
     }
 
-    traverseMaterials (scene) {
-        scene.traverse(n => { if ( n.isMesh ) {
-            console.log(n);
-            n.castShadow = true;
-            n.receiveShadow = true;
-            if(n.material.map) n.material.map.anisotropy = 16;
-        }});
+    traverseMaterials(scene) {
+        scene.traverse(n => {
+            if (n.isMesh) {
+                console.log(n);
+                n.castShadow = true;
+                n.receiveShadow = true;
+                if (n.material.map) n.material.map.anisotropy = 16;
+            }
+        });
     }
 
     loadModel(url) {
