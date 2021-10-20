@@ -18,19 +18,34 @@ const HDR = {
 const chairTexture1 = "https://res.cloudinary.com/dqsubx7oc/image/upload/v1634731169/3d/table/textures/wooden_table_02_diff_2k_blue_mfakfu.jpg";
 const chairTexture2 = "https://res.cloudinary.com/dqsubx7oc/image/upload/v1634729415/3d/table/textures/bark_brown_02_diff_2k.jpg";
 
-
+let model = 'chair';
 const viewer = new Viewer(document.getElementById("viewer"), {});
 
-document.getElementById("helmet").addEventListener("click", () =>{
+document.getElementById("helmet").addEventListener("click", () => {
+    model = 'helmet';
     viewer.loadModel(helmet);
 });
 
 document.getElementById("astro").addEventListener("click", () =>{
+    model = 'astro';
     viewer.loadModel(astro);
 });
 
 document.getElementById("chair").addEventListener("click", () =>{
+    model = 'chair';
     viewer.loadModel(chair);
+});
+
+document.getElementById("texture").addEventListener("click", () => {
+    if (model === 'chair') {
+        viewer.loadTextures({
+            map: 'https://res.cloudinary.com/dqsubx7oc/image/upload/v1634735692/3d/WaterBottle_baseColor_pncyoy.png',
+            roughnessMap: 'https://res.cloudinary.com/dqsubx7oc/image/upload/v1634736549/3d/WaterBottle_occlusionRoughnessMetallic_io7jdw.png'
+        });
+    }  else if (model === 'helmet') {
+        viewer.loadTextures({ map: 'https://res.cloudinary.com/dqsubx7oc/image/upload/v1634735782/3d/Default_albedo_jyxqea.jpg'})
+
+    }
 });
 
 let isBG = true;

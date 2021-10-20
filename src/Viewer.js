@@ -13,6 +13,7 @@ import {Lights} from "./components/Lights";
 import {Animate} from "./systems/Animate";
 import {repositionObjectAndCameraToCenter} from "./Viewer.helpers";
 import { loadHdr } from "./systems/HDRLoader";
+import {loadTexture} from "./systems/TextureLoader";
 
 const loadingManager = new LoadingManager();
 const THREE_PATH = `https://unpkg.com/three@0.${REVISION}.x`
@@ -61,32 +62,21 @@ export class Viewer {
         this.scene.background = null;
     }
 
-    loadTexture(url) {
-        const textureLoader = new TextureLoader();
-       // const material = new MeshStandardMaterial( { map: texture } );
-        this.currentObject.traverse((o) => {
-            if (o.isMesh) {
-                //o.material.roughnessMap = rou;
-                //o.material.baseColorTexture = texture;
-                o.material.map = textureLoader.load("https://res.cloudinary.com/dqsubx7oc/image/upload/v1634735692/3d/WaterBottle_baseColor_pncyoy.png");
-                o.material.roughnessMap = textureLoader.load("https://res.cloudinary.com/dqsubx7oc/image/upload/v1634736549/3d/WaterBottle_occlusionRoughnessMetallic_io7jdw.png");
-                o.material.needsUpdate = true;
-                //o.material.roughnessMap = rou;
-                //o.material.normalMap = no;
-
+    loadTextures(textures) {
+        const mapTypes = Object.keys(textures);
+        Promise.all(Object.values(textures).map(texture => loadTexture(texture))).then((textureMaps) => {
+            for (let i = 0; i < textureMaps.length; i++) {
+                const mapType = mapTypes[i];
+                const textureMap = textureMaps[i];
+                this.currentObject.traverse((o) => {
+                    if (o.isMesh) {
+                        textureMap.flipY = false;
+                        o.material[mapType] = textureMap;
+                        o.material.needsUpdate = true;
+                    }
+                });
             }
-        });
-/*        textureLoader.load("https://res.cloudinary.com/dqsubx7oc/image/upload/v1634735692/3d/WaterBottle_baseColor_pncyoy.png",  ( texture ) => {
-        textureLoader.load("https://res.cloudinary.com/dqsubx7oc/image/upload/v1634736549/3d/WaterBottle_occlusionRoughnessMetallic_io7jdw.png",  ( rou ) => {
-            // in this example we create the material when the texture is loaded
-            const material = new MeshStandardMaterial( { map: texture } );
-            texture.flipY = false;
-            rou.flipY = false;
-            texture.encoding = sRGBEncoding;
-            texture.rou = sRGBEncoding;
-
-        });
-        });*/
+        })
     }
 
     loadModel(url) {
