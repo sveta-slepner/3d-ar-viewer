@@ -6,7 +6,9 @@ const astro =
 const chair =
     "https://res.cloudinary.com/dqsubx7oc/image/upload/v1634329778/3d/SheenChair_mvnq8u.glb";
 
+const hdr = "https://res.cloudinary.com/dqsubx7oc/raw/upload/v1634721182/3d/studio_small_08_1k_d7pxua.hdr";
+
 const viewer = new Viewer(document.getElementById("viewer"), {});
-viewer.loadModel(chair).then(() => {
+viewer.loadModel(chair, hdr).then(() => {
     console.log("loaded");
 })
