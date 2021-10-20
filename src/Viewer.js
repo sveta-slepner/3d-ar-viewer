@@ -1,4 +1,4 @@
-import { Box3, Vector3, Scene } from 'three';
+import {Scene, TextureLoader, MeshBasicMaterial} from 'three';
 
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {createRenderer} from "./systems/Renderer";
@@ -8,6 +8,7 @@ import {Controls} from "./components/Controls";
 import {Lights} from "./components/Lights";
 import {Animate} from "./systems/Animate";
 import {repositionObjectAndCameraToCenter} from "./Viewer.helpers";
+import { loadHdr } from "./systems/HDRLoader";
 
 export class Viewer {
     constructor(domElement) {
@@ -42,6 +43,21 @@ export class Viewer {
         this.currentObject = object;
     }
 
+    loadHdr(hdr, shouldShowAsBackground) {
+        return loadHdr(this.renderer, this.scene, hdr, shouldShowAsBackground);
+    }
+
+    loadTexture(url) {
+        const textureLoader = new TextureLoader();
+        textureLoader.load(url,  ( texture ) => {
+            // in this example we create the material when the texture is loaded
+            const material = new MeshBasicMaterial( { map: texture } );
+            this.currentObject.traverse((o) => {
+                if (o.isMesh) o.material = material;
+            });
+        });
+    }
+
     loadModel(url) {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader().setCrossOrigin("anonymous");
@@ -56,6 +72,7 @@ export class Viewer {
                     }
 
                     this.setContent(scene, clips);
+                    console.log(gltf);
                     resolve(gltf);
                 },
                 undefined,

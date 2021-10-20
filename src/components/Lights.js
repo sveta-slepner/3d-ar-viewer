@@ -10,7 +10,7 @@ export class Lights {
     }
 
      _createDefaultLights() {
-        const hemiLight = new HemisphereLight(0xffeeb1, 0x080820, 3);
+        const hemiLight = new HemisphereLight(0xffeeb1, 0x080820, 1);
         hemiLight.name = 'hemisphere';
         this.lights.set(hemiLight.name, hemiLight);
 
