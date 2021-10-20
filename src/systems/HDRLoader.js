@@ -22,6 +22,7 @@ export const loadHdr = (renderer, scene, hdr = 'basic', shouldShowAsBackground =
                 texture => {
                     const envMap = pmremGenerator.fromEquirectangular(texture).texture;
                     scene.environment = envMap;
+                    scene.background = null;
                     if (shouldShowAsBackground) {
                         scene.background = envMap;
                     }

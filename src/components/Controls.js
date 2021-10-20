@@ -24,7 +24,7 @@ export class Controls {
         this.controls.maxDistance = size / (2 * Math.tan((this.camera.fov * Math.PI) / 360));
 
         // max zoom of * 2
-        this.controls.minDistance = this.controls.maxDistance / 2;
+        this.controls.minDistance = this.controls.maxDistance / 1.5;
 
         this.controls.saveState();
     }
